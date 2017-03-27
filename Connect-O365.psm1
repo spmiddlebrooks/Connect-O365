@@ -4,7 +4,7 @@
 .PARAMETER
 .EXAMPLE
 .NOTES
-	Version: 1.2.10
+	Version: 1.2.11
 	Updated: 10/17/2016
 	Author : Scott Middlebrooks
 .INPUTS
@@ -12,6 +12,24 @@
 .LINK
 #>
 function New-SecureStringFile {
+	<#
+	.SYNOPSIS
+		Store passwords in files as secure strings
+	.DESCRIPTION
+		Create files to store secure string passwords for reuse in scripts or later Connect-* module sessions.
+	.PARAMETER FilePath
+		Full path of file where secure string will be stored.  Must be full path or an error will occur.
+	.EXAMPLE
+		New-SecureStringFile -FilePath C:\Secure\MyPassword.txt
+	.EXAMPLE
+		New-SecureStringFile -FilePath .\Password.txt
+	.NOTES
+		Version: 1.0
+		Updated: 7/6/2016
+		Author : Scott Middlebrooks
+	.LINK
+	#>
+
 	[cmdletbinding()]
 	param(
 		[Parameter(Mandatory=$True,Position=0)]
