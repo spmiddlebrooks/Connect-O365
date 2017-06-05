@@ -4,7 +4,7 @@
 .PARAMETER
 .EXAMPLE
 .NOTES
-	Version: 1.3
+	Version: 1.3.1
 	Updated: 6/5/2017
 	Author : Scott Middlebrooks
 .INPUTS
@@ -52,22 +52,27 @@ function Get-CredentialObject {
 			[string] $Password
 	)
 
-	if ( ($Username -AND $Password) -AND (Test-Path $Password) ) {
-		$sPassword = Get-Content $Password | ConvertTo-SecureString
-		$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
-	}
-	elseif ($Username -AND $Password) {
-		$sPassword = ConvertTo-SecureString -String $Password -AsPlainText -force
-		$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
-	}
-	else {
-		if ($Username) {
-			#PromptForCredential(Title,Message,Username,Domain)
-			$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials',$Username,'')
+	if ( $Username -match '^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$' ) {
+		if ( ($Username -AND $Password) -AND (Test-Path $Password) ) {
+			$sPassword = Get-Content $Password | ConvertTo-SecureString
+			$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
+		}
+		elseif ($Username -AND $Password) {
+			$sPassword = ConvertTo-SecureString -String $Password -AsPlainText -force
+			$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
 		}
 		else {
-			$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials','','')
+			if ($Username) {
+				#PromptForCredential(Title,Message,Username,Domain)
+				$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials',$Username,'')
+			}
+			else {
+				$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials','','')
+			}
 		}
+	}
+	else {
+		throw 'Username does not appear to be a valid userPrincipalName, i.e. username@domain.com'
 	}
 
 	Return $CredObj
