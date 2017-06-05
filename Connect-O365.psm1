@@ -229,7 +229,7 @@ New-Alias -Name cos -Value Connect-O365Skype
 
 Export-ModuleMember -Function New-SecureStringFile
 Export-ModuleMember -Function Get-CredentialObject
-Export-ModuleMember -Function Connect-365All
+Export-ModuleMember -Function Connect-O365All
 Export-ModuleMember -Function Connect-O365Admin -Alias coa
 Export-ModuleMember -Function Connect-O365Exchange -Alias coe
 Export-ModuleMember -Function Connect-O365Skype -Alias cos
