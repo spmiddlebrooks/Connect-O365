@@ -4,8 +4,8 @@
 .PARAMETER
 .EXAMPLE
 .NOTES
-	Version: 1.2.11
-	Updated: 10/17/2016
+	Version: 1.3
+	Updated: 6/5/2017
 	Author : Scott Middlebrooks
 .INPUTS
 .OUTPUTS
@@ -97,7 +97,7 @@ function Connect-O365Admin {
 	}	
 }
 
-function Connect-ExchangeOnline {
+function Connect-O365Exchange {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
@@ -122,7 +122,7 @@ function Connect-ExchangeOnline {
 	}	
 }
 
-function Connect-SkypeOnline {
+function Connect-O365Skype {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
@@ -139,7 +139,7 @@ function Connect-SkypeOnline {
 		$CredentialObject = Get-CredentialObject -Username $Username -Password $Password
 	}
 
-	Test-Prerequisites 'SkypeOnline'
+	Test-Prerequisites -ServiceName 'O365Skype'
 
 	if ($TenantName) {
 		$OverrideAdminDomain = $TenantName + '.onmicrosoft.com'
@@ -164,7 +164,7 @@ function Test-Prerequisites {
 	[cmdletbinding()]
 	param (
 		[Parameter(Mandatory=$true,Position=0)]
-			[ValidateSet('O365Admin','SkypeOnline')]
+			[ValidateSet('O365Admin','O365Skype')]
 			[string] $ServiceName
 	)
 
@@ -178,7 +178,7 @@ function Test-Prerequisites {
 				throw "Microsoft Online Service Sign-In Assistant is not instaled or outdated - major version should be 7 or greater."
 			}
 		}
-		'SkypeOnline' { 
+		'O365Skype' { 
 			$Program = $InstalledPrograms | ? {$_.DisplayName -match "Skype for Business Online.*PowerShell"}
 
 			if ($Program.VersionMajor -lt 6 -OR !$Program) {
@@ -188,7 +188,7 @@ function Test-Prerequisites {
 	}
 }
 
-function Connect-AllO365 {
+function Connect-O365All {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
@@ -206,23 +206,23 @@ function Connect-AllO365 {
 	}
 
 	Connect-O365Admin -CredentialObject $CredentialObject
-	Connect-ExchangeOnline -CredentialObject $CredentialObject
+	Connect-O365Exchange -CredentialObject $CredentialObject
 
 	if ($TenantName) {
-		Connect-SkypeOnline -CredentialObject $CredentialObject -TenantName $TenantName
+		Connect-O365Skype -CredentialObject $CredentialObject -TenantName $TenantName
 	}
 	else {
-		Connect-SkypeOnline -CredentialObject $CredentialObject	
+		Connect-O365Skype -CredentialObject $CredentialObject	
 	}
 }
 
 New-Alias -Name coa -Value Connect-O365Admin
-New-Alias -Name ceo -Value Connect-ExchangeOnline
-New-Alias -Name cso -Value Connect-SkypeOnline
+New-Alias -Name coe -Value Connect-O365Exchange
+New-Alias -Name cos -Value Connect-O365Skype
 
 Export-ModuleMember -Function New-SecureStringFile
 Export-ModuleMember -Function Get-CredentialObject
-Export-ModuleMember -Function Connect-AllO365
+Export-ModuleMember -Function Connect-365All
 Export-ModuleMember -Function Connect-O365Admin -Alias coa
-Export-ModuleMember -Function Connect-ExchangeOnline -Alias ceo
-Export-ModuleMember -Function Connect-SkypeOnline -Alias cso
+Export-ModuleMember -Function Connect-O365Exchange -Alias coe
+Export-ModuleMember -Function Connect-O365Skype -Alias cos
