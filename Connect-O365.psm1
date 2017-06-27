@@ -94,7 +94,8 @@ function Get-CredentialObject {
 				$null = $wshell.Popup("Username not a valid userPrincipalName.`nUsername should be of the form username@domain.com.`nPlease re-enter your credentials.",0,"Username Format Invalid",0x30)
 				$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please re-enter your Office 365 Admin Credentials','','')
 				$Username = $CredObj.Username
-			}		}
+			}
+		}
 		else {
 			$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials','','')
 			$Username = $CredObj.Username
