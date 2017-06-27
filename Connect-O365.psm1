@@ -229,14 +229,14 @@ function Test-Prerequisites {
 			$Program = $InstalledPrograms | ? {$_.DisplayName -match "Microsoft Online.*Sign-In Assistant"}
 
 			if ($Program.VersionMajor -lt 7 -OR -Not $Program) {
-				throw "Microsoft Online Service Sign-In Assistant is not instaled or outdated - major version should be 7 or greater."
+				throw "Microsoft Online Service Sign-In Assistant is not installed or outdated - major version should be 7 or greater."
 			}
 		}
 		'O365Skype' { 
 			$Program = $InstalledPrograms | ? {$_.DisplayName -match "Skype for Business Online.*PowerShell"}
 
-			if ($Program.VersionMajor -lt 6 -OR -Not $Program) {
-				throw "Microsoft Skype for Business Online PowerSell Module not installed or outdated - major version should be 6 or greater."
+			if ($Program.VersionMajor -lt 7 -OR -Not $Program) {
+				throw "Microsoft Skype for Business Online PowerShell Module not installed or outdated - major version should be 7 or greater."
 			}
 		}
 	}
