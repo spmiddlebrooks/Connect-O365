@@ -4,8 +4,8 @@
 .PARAMETER
 .EXAMPLE
 .NOTES
-	Version: 1.3.3
-	Updated: 6/27/2017
+	Version: 1.3.4
+	Updated: 7/27/2017
 	Author : Scott Middlebrooks
 .INPUTS
 .OUTPUTS
@@ -122,11 +122,11 @@ function Connect-O365Admin {
 			[string] $Password=''
 	)
 
+	Test-Prerequisites 'O365Admin'
+	
 	if (-Not ($CredentialObject -AND $CredentialObject.GetType().Name -eq 'PSCredential') ) {
 		$CredentialObject = Get-CredentialObject -Username $Username -Password $Password
 	}
-
-	Test-Prerequisites 'O365Admin'
 
 	try {
 		connect-msolservice -credential $CredentialObject
@@ -179,12 +179,11 @@ function Connect-O365Skype {
 	$MicrosoftO365Domain = 'onmicrosoft.com'
 	$TenantNameRegexString = "(\w+)\.(" + $MicrosoftO365Domain + ")?$"
 	
+	Test-Prerequisites -ServiceName 'O365Skype'
 	
 	if (-Not ($CredentialObject -AND $CredentialObject.GetType().Name -eq 'PSCredential') ) {
 		$CredentialObject = Get-CredentialObject -Username $Username -Password $Password
 	}
-
-	Test-Prerequisites -ServiceName 'O365Skype'
 
 	$HybridEnabled = Get-CsHostingProvider | Where-Object {$_.Enabled -and $_.EnabledSharedAddressSpace -and $_.HostsOCSUsers -and $_.ProxyFqdn -eq $SkypeOnlineProxyFqdn -and $_.AutodiscoverUrl -eq $SkypeOnlineAutodiscoverUrl}
 	$HostedVoicemail = Get-CsHostedVoicemailPolicy | Where-Object {$_.Destination -eq $ExchangeOnlineHostedVoicemailDestination}
