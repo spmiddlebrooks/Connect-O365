@@ -4,8 +4,8 @@
 .PARAMETER
 .EXAMPLE
 .NOTES
-	Version: 1.3.4
-	Updated: 7/27/2017
+	Version: 1.4
+	Updated: 2018-06-11
 	Author : Scott Middlebrooks
 .INPUTS
 .OUTPUTS
@@ -43,6 +43,7 @@ function New-SecureStringFile {
 
 	( (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Password','No Username Required','') ).Password | ConvertFrom-SecureString | Out-File $FilePath
 }
+
 function Get-CredentialObject {
 	<#
 	.SYNOPSIS
@@ -58,8 +59,8 @@ function Get-CredentialObject {
 	.EXAMPLE
 		Get-CredentialObject -Username admin@domain.com -Password .\Password.txt
 	.NOTES
-		Version: 1.1
-		Updated: 6/27/2017
+		Version: 1.2
+		Updated: 2018-06-11
 		Author : Scott Middlebrooks
 	.LINK
 	#>
@@ -77,45 +78,44 @@ function Get-CredentialObject {
 
 	if ( ($UsernameRegexMatch -AND $Password) -AND (Test-Path $Password) ) {
 		$sPassword = Get-Content $Password | ConvertTo-SecureString
-		$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
+		$global:CredentialObject = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
 	}
 	elseif ($UsernameRegexMatch -AND $Password) {
 		$sPassword = ConvertTo-SecureString -String $Password -AsPlainText -force
-		$CredObj = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
+		$global:CredentialObject = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username,$sPassword
 	}
 	else {
 		if ($UsernameRegexMatch) {
 			#PromptForCredential(Title,Message,Username,Domain)
-			$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials',$Username,'')
+			$global:CredentialObject = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials',$Username,'')
 		}
 		elseif ($Username -AND -Not $UsernameRegexMatch) {
 			while ($Username -notmatch $UsernameRegexString) {
 				$wshell = New-Object -ComObject Wscript.Shell
 				$null = $wshell.Popup("Username not a valid userPrincipalName.`nUsername should be of the form username@domain.com.`nPlease re-enter your credentials.",0,"Username Format Invalid",0x30)
-				$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please re-enter your Office 365 Admin Credentials','','')
-				$Username = $CredObj.Username
+				$global:CredentialObject = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please re-enter your Office 365 Admin Credentials','','')
+				$Username = $global:CredentialObject.Username
 			}
 		}
 		else {
-			$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials','','')
-			$Username = $CredObj.Username
+			$global:CredentialObject = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please enter your Office 365 Admin Credentials','','')
+			$Username = $global:CredentialObject.Username
 			Write-Debug "Username = $Username"
 			while ($Username -notmatch $UsernameRegexString) {
 				$wshell = New-Object -ComObject Wscript.Shell
 				$null = $wshell.Popup("Username not a valid userPrincipalName.`nUsername should be of the form username@domain.com.`nPlease re-enter your credentials.",0,"Username Format Invalid",0x30)
-				$CredObj = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please re-enter your Office 365 Admin Credentials','','')
-				$Username = $CredObj.Username
+				$global:CredentialObject = (Get-Host).UI.PromptForCredential('Office 365 Credentials','Please re-enter your Office 365 Admin Credentials','','')
+				$Username = $global:CredentialObject.Username
 			}
 		}
 	}
-
-	Return $CredObj
+	Return $global:CredentialObject
 }
 function Connect-O365Admin {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
-			$CredentialObject,
+			$CredentialObject = $global:CredentialObject,
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='Username')]
 			[string] $Username='',
 		[Parameter(Mandatory=$false,Position=1)]
@@ -140,7 +140,7 @@ function Connect-O365Exchange {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
-			$CredentialObject,
+			$CredentialObject = $global:CredentialObject,
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='Username')]
 			[string] $Username='',
 		[Parameter(Mandatory=$false,Position=1)]
@@ -165,7 +165,7 @@ function Connect-O365Skype {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
-			$CredentialObject,
+			$CredentialObject = $global:CredentialObject,
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='Username')]
 			[string] $Username='',
 		[Parameter(Mandatory=$false,Position=1)]
@@ -245,7 +245,7 @@ function Connect-O365All {
 	[cmdletbinding(DefaultParameterSetName='Username')]
 	param (	
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='CredentialObject')]
-			$CredentialObject,
+			$CredentialObject = $global:CredentialObject,
 		[Parameter(Mandatory=$False,Position=0,ParameterSetName='Username')]
 			[string] $Username='',
 		[Parameter(Mandatory=$false,Position=1)]
